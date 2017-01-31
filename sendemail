@@ -1,13 +1,17 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 from __future__ import print_function
 import httplib2
 import os
 
+from email.mime.text import MIMEText
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+from urllib2 import HTTPError
+import base64
+
 
 try:
     import argparse
@@ -17,9 +21,9 @@ except ImportError:
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
+SCOPES = 'https://www.googleapis.com/auth/gmail.compose'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Gmail API Python Quickstart'
+APPLICATION_NAME = 'Coding Team Email Sender'
 
 
 def get_credentials():
@@ -50,7 +54,7 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def create_message(sender, to, subject, message_text):
+def create_message(sender, to, subject, cc, message_text):
   """Create a message for an email.
 
   Args:
@@ -64,6 +68,7 @@ def create_message(sender, to, subject, message_text):
   """
   message = MIMEText(message_text)
   message['to'] = to
+  message['cc'] = cc
   message['from'] = sender
   message['subject'] = subject
   return {'raw': base64.urlsafe_b64encode(message.as_string())}
@@ -80,13 +85,13 @@ def send_message(service, user_id, message):
   Returns:
     Sent Message.
   """
+  print("Hello")
   try:
-    message = (service.users().messages().send(userId=user_id, body=message)
-               .execute())
-    print 'Message Id: %s' % message['id']
-    return message
-  except errors.HttpError, error:
-    print 'An error occurred: %s' % error
+      message = (service.users().messages().send(userId=user_id, body=message).execute())
+      print("Message Id: %s" % message['id'])
+      return message
+  except:
+      print("An error occurred.")
 
 def main():
     """Shows basic usage of the Gmail API.
@@ -97,17 +102,28 @@ def main():
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
+    
+    message = """ 
 
-    results = service.users().labels().list(userId='me').execute()
-    labels = results.get('labels', [])
+	Hey everyone!
 
-    if not labels:
-        print('No labels found.')
-    else:
-      print('Labels:')
-      for label in labels:
-        print(label['name'])
+	This is a reminder that the Coding Team will be meeting this Saturday at
+        1pm! Let us know if you can't make it so that we can make some arrangements.
 
+	Best,
+
+	Oliver, Tom, David, and Victoria
+
+	"""
+    
+    sender = "okeh@hamilton.edu"
+    to = "okeh@hamilton.edu"
+    cc = ["vslack@hamilton.edu", "durbont@hamilton.edu","tparker@hamilton.edu"]
+    subject = "Coding Team Meeting"
+
+    for i in cc:
+        email_text = create_message(sender, to, subject, i, message)
+        send_message(service, 'me', email_text)
 
 if __name__ == '__main__':
     main()
