@@ -66,7 +66,13 @@ def create_message(sender, to, subject, cc, message_text):
   Returns:
     An object containing a base64url encoded email object.
   """
-  message = MIMEText(message_text)
+
+  email = ""
+  
+  for c in message_text:
+      email += c
+  
+  message = MIMEText(email)
   message['to'] = to
   message['cc'] = cc
   message['from'] = sender
@@ -85,7 +91,6 @@ def send_message(service, user_id, message):
   Returns:
     Sent Message.
   """
-  print("Hello")
   try:
       message = (service.users().messages().send(userId=user_id, body=message).execute())
       print("Message Id: %s" % message['id'])
@@ -94,35 +99,27 @@ def send_message(service, user_id, message):
       print("An error occurred.")
 
 def main():
-    """Shows basic usage of the Gmail API.
 
-    Creates a Gmail API service object and outputs a list of label names
-    of the user's Gmail account.
-    """
+    email_text = open('club_email.txt', 'r')
+    recipients = open('recipient_list.txt', 'r')
+    tail = "@hamilton.edu"
+    
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
-    
-    message = """ 
-
-	Hey everyone!
-
-	This is a reminder that the Coding Team will be meeting this Saturday at
-        1pm! Let us know if you can't make it so that we can make some arrangements.
-
-	Best,
-
-	Oliver, Tom, David, and Victoria
-
-	"""
-    
+        
     sender = "okeh@hamilton.edu"
     to = "okeh@hamilton.edu"
-    cc = ["vslack@hamilton.edu", "durbont@hamilton.edu","tparker@hamilton.edu"]
-    subject = "Coding Team Meeting"
+    cc = []
+
+    for j in recipients:
+        name = j.strip() + tail
+        cc.append(name)
+    
+    subject = "~~CODING TEAM~~ Meeting Saturday"
 
     for i in cc:
-        email_text = create_message(sender, to, subject, i, message)
+        email_text = create_message(sender, to, subject, i,email_text)
         send_message(service, 'me', email_text)
 
 if __name__ == '__main__':
