@@ -120,8 +120,8 @@ def main():
     subject = "~~CODING TEAM~~ Meeting Saturday"
 
     for i in cc:
-        email_text = create_message(sender, to, subject, i,email_text)
-        send_message(service, 'me', email_text)
+        email_message = create_message(sender, to, subject, i,email_text)
+        send_message(service, 'me', email_message)
 
 if __name__ == '__main__':
     main()
