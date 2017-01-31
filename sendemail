@@ -1,8 +1,9 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 from __future__ import print_function
 import httplib2
 import os
+import sys
 
 from email.mime.text import MIMEText
 from apiclient import discovery
@@ -11,13 +12,6 @@ from oauth2client import tools
 from oauth2client.file import Storage
 from urllib2 import HTTPError
 import base64
-
-
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
@@ -99,7 +93,14 @@ def send_message(service, user_id, message):
       print("An error occurred.")
 
 def main():
-
+    
+    if (len(sys.argv) > 2):
+        print("Error: Too many arguments. Include only sender email address.")
+        exit(1)
+    elif (len(sys.argv) == 1):
+        print("Error: No arguments given. Include only sender email address.")
+        exit(1)
+    
     email_text = open('club_email.txt', 'r')
     recipients = open('recipient_list.txt', 'r')
     tail = "@hamilton.edu"
@@ -108,13 +109,13 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
         
-    sender = "okeh@hamilton.edu"
-    to = "okeh@hamilton.edu"
-    cc = []
+    sender = str(sys.argv[1])
+    to = sender
+    cc = ["okeh@hamilton.edu"]
 
-    for j in recipients:
-        name = j.strip() + tail
-        cc.append(name)
+    #for j in recipients:
+        #name = j.strip() + tail
+        #cc.append(name)
     
     subject = "~~CODING TEAM~~ Meeting Saturday"
 
