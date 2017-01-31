@@ -111,11 +111,11 @@ def main():
         
     sender = str(sys.argv[1])
     to = sender
-    cc = ["okeh@hamilton.edu"]
+    cc = []
 
-    #for j in recipients:
-        #name = j.strip() + tail
-        #cc.append(name)
+    for j in recipients:
+        name = j.strip() + tail
+        cc.append(name)
     
     subject = "~~CODING TEAM~~ Meeting Saturday"
 
